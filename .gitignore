@@ -117,4 +117,7 @@ coverage.xml
 docs/_build/
 
 # PyBuilder
-.ipynb_checkpoints
+.ipynb_checkpoints/
+
+# Training files
+Training/
