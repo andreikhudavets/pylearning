@@ -122,11 +122,33 @@ class Hand(object):
         return unicode(self).encode('utf-8')
     def __repr__(self):
         return self.__str__()
+    def add_one_card(self, card, choose_a_value = True):
+        if card[1] == 'A' and choose_a_value:
+            new_card = self.select_ace_value(card)
+        self.player.hands[self.current_hand].add_card(new_card)
+        if choose_a_value:
+            print "New hand: ", self.player.hands
+    def select_ace_value (self, card):
+        print "Please select value of card "+Deck.get_card_str(card)
+        while True:
+            try:
+                value = int(raw_input("(1 or 11?): "))
+            except:
+                continue
+            else:
+                if value != 1 and value != 11:
+                    continue
+                else:
+                    return (card[0], card[1], value)
 #----------------------------CLASS PLAYER------------------------------------------------------
 class Player(object):
     def __init__(self, hand = Hand(), bank=100):
         self.bank = bank
         self.hands = [hand]
+    def bet_on_hand(self, hand, amount):
+        self.bank -= amount
+        self.hands[hand].bet += amount
+        
 #----------------------------CLASS DEALER------------------------------------------------------    
 class Dealer(object):
     def __init__(self, hand = Hand()):
@@ -141,32 +163,15 @@ class BlackJack(object):
     STATE_HIT = 6
     STATE_INSURANCE = 7
     STATE_DOUBLE_DOWN = 8
+    STATE_SPLIT = 9
+    STATE_HAND_START = 10
     
     bet = 2.0
     
     def __init__(self):
         self.reset_game()
         pass
-    
-    def select_ace_value (self, card):
-        print "Please select value of card "+Deck.get_card_str(card)
-        while True:
-            try:
-                value = int(raw_input("(1 or 11?): "))
-            except:
-                continue
-            else:
-                if value != 1 and value != 11:
-                    continue
-                else:
-                    return (card[0], card[1], value)
                 
-    def get_one_card(self):
-        new_card = self.deck.next_card()
-        if new_card[1] == 'A':
-            new_card = self.select_ace_value(new_card)
-        self.player.hands[self.current_hand].add_card(new_card)
-        print "New hand: ", self.player.hands
 
     def loose_if_more_than_21(self):
         if self.player.hands[self.current_hand].get_value() > 21:
@@ -185,23 +190,23 @@ class BlackJack(object):
         
     def start(self):
         while True:
-            self.available_commands = [CommandExit(),CommandNewGame()]
+            self.available_commands = []
             
             if self.game_state == BlackJack.STATE_GAME_OVER:
-                pass
+                self.available_commands = [CommandExit(),CommandNewGame()]
 
             if self.game_state == BlackJack.STATE_EXIT:
                 break
             
             if self.game_state == BlackJack.STATE_END_OF_ROUND:
-                self.available_commands.append(CommandContinue())
                 print "Bank: ", self.player.bank
+                if len(self.player.hands) == 2 and self.current_hand == 0:
+                    self.current_hand = 1
+                    self.game_state = BlackJack.STATE_PLAYER_HAND
+                    continue
+                else:
+                    self.available_commands.append([CommandContinue(),CommandExit(),CommandNewGame()])
                 
-            #----- HIT CARD -----------------------------
-            if self.game_state == BlackJack.STATE_HIT:
-                self.get_one_card()
-                self.game_state = BlackJack.STATE_PLAYER_HAND
-
             #----- NEW ROUND -----------------------------                                                                       
             if self.game_state == BlackJack.STATE_NEW_ROUND:
                 self.deck = Deck()
@@ -216,38 +221,54 @@ class BlackJack(object):
                 if self.dealer.hand.get_value() == 22:
                     self.dealer.hand.cards[0][2] = 1
                 
-                self.player.hands[self.current_hand].bet = BlackJack.bet
-                self.player.bank -= self.player.hands[self.current_hand].bet
-                self.game_state = BlackJack.STATE_PLAYER_HAND
-                
+                if self.player.hands[self.current_hand].cards[0][1] == self.player.hands[self.current_hand].cards[1][1]:
+                    self.available_commands.append(CommandSplit())
+                                
                 if self.dealer.hand.cards[1][1] == 'A' and self.player.bank >= 0.5*BlackJack.bet:
                     self.available_commands.append(CommandInsurance())
+                
+                self.game_state = BlackJack.STATE_HAND_START
 
-                if self.player.hands[self.current_hand].cards[0][1] == self.player.hands[0].cards[1][1]:
-                    self.available_commands.append(CommandSplit())
-                    
-                #if 9 <= self.player.hands[self.current_hand].get_value()<= 11:
-                if 0 <= self.player.hands[self.current_hand].get_value()<= 20:
-                    self.available_commands.append(CommandDoubleDown())
-                    
-                print "-------------- NEW GAME -----------------"
+                
+            #----- HIT CARD -----------------------------
+            if self.game_state == BlackJack.STATE_HIT:
+                self.player.hands[self.current_hand].add_one_card(self.deck.next_card())
+                self.game_state = BlackJack.STATE_PLAYER_HAND
+                continue
+
+            #------ START HAND ---------------------------------
+            if self.game_state == BlackJack.STATE_HAND_START:
+                self.player.bet_on_hand(self.current_hand, BlackJack.bet)
+
+                print "-------------- NEW HAND -----------------"
                 print "Bank: ", self.player.bank, " Bet:", self.player.hands[self.current_hand].bet
                 print "Dealer hand:",Deck.get_downcard_str(), Deck.get_card_str(self.dealer.hand.cards[1])
                 print "Your hand: ", self.player.hands
+
+                # Add additional cards if needed
+                while len(self.player.hands[self.current_hand].cards) < 2:
+                    self.player.hands[self.current_hand].add_one_card(self.deck.next_card())
                 
                 # Select value of Ace
                 for i in range(2):
                     if self.player.hands[self.current_hand].cards[i][1] == 'A':
-                        self.player.hands[self.current_hand].cards[i] = self.select_ace_value(self.player.hands[self.current_hand].cards[i])
+                        self.player.hands[self.current_hand].cards[i] = self.player.hands[self.current_hand].select_ace_value(self.player.hands[self.current_hand].cards[i])
                         print "Updated hand: ", self.player.hands
+                        
+                self.game_state = BlackJack.STATE_PLAYER_HAND
+                
 
-
+            #----- SPLIT HANDS -------------------------------
+            if self.game_state == BlackJack.STATE_SPLIT:
+                self.player.hands.append(Hand([self.player.hands[0].pop(1)]))
+                self.game_state = BlackJack.STATE_HAND_START
+                continue
+            
             #----- DOUBLE DOWN -------------------------------
             if self.game_state == BlackJack.STATE_DOUBLE_DOWN:
-                self.player.bank -= self.player.hands[self.current_hand].bet
-                self.player.hands[self.current_hand].bet *= 2
+                self.player.bet_on_hand(self.current_hand, BlackJack.bet)
                 print "Your bet is doubled! New bet = {:.2f}".format(self.player.hands[self.current_hand].bet)
-                self.get_one_card()
+                self.player.hands[self.current_hand].add_one_card(self.deck.next_card())
                 if self.loose_if_more_than_21() or self.win_if_black_jack():
                     continue
                 else:
@@ -257,14 +278,6 @@ class BlackJack(object):
             if self.player.bank < BlackJack.bet:
                 print "You've lost all of your money. Game over!!!"
                 self.game_state = BlackJack.STATE_GAME_OVER
-                continue
-            
-            #----- BLACK JACK --------------------------------                                               
-            if self.game_state == BlackJack.STATE_PLAYER_HAND and self.win_if_black_jack():
-                continue
-            
-            #----- LOOSING >21 -------------------------------
-            if self.game_state == BlackJack.STATE_PLAYER_HAND and self.loose_if_more_than_21():
                 continue
 
             #----- DEALER HAND PLAYING ------------------------                               
@@ -287,12 +300,7 @@ class BlackJack(object):
                 self.game_state = BlackJack.STATE_END_OF_ROUND
                 continue
 
-            #----- PLAYER HAND PLAYING ------------------------                   
-            if self.game_state == BlackJack.STATE_PLAYER_HAND and self.player.hands[self.current_hand].get_value() < 21:
-                self.available_commands.append(CommandHit())
-                self.available_commands.append(CommandStand())
-                
-            #----- INSURANCE ----------------------------------   
+           #----- INSURANCE ----------------------------------   
             if self.game_state == BlackJack.STATE_INSURANCE:
                 if self.dealer.hand.cards[0][2] == 10:
                     self.player.bank += BlackJack.bet
@@ -303,7 +311,21 @@ class BlackJack(object):
                     print "You are loosing your insurance."
                     self.game_state = BlackJack.STATE_PLAYER_HAND
                 continue
-                
+ 
+
+            #----- PLAYER HAND INTERACTION -------------------------------
+            if self.game_state == BlackJack.STATE_PLAYER_HAND:
+                if self.win_if_black_jack():
+                    continue
+                if self.loose_if_more_than_21():
+                    continue
+                #if 9 <= self.player.hands[self.current_hand].get_value()<= 11:
+                if 0 <= self.player.hands[self.current_hand].get_value()<= 20:
+                    self.available_commands.append(CommandDoubleDown())
+                if self.player.hands[self.current_hand].get_value() < 21:
+                    self.available_commands.append(CommandHit())
+                    self.available_commands.append(CommandStand())
+                               
                 
             #Interaction with user
             print self.available_commands
@@ -342,6 +364,9 @@ class BlackJack(object):
                 return
             elif type(command) == CommandDoubleDown:
                 self.game_state = BlackJack.STATE_DOUBLE_DOWN
+                return
+            elif type(command) == CommandSplit():
+                self.game_state = BlackJack.STATE_SPLIT
                 return
         raise InvalidInput("Unknown command")
         
