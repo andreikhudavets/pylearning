@@ -230,8 +230,9 @@ class BlackJack(object):
                 self.dealer.hand = Hand([self.deck.next_card(), self.deck.next_card()])
                 self.current_hand = 0
                 
-                self.player.hands = [Hand([(u'\u2660','2',2), (u'\u2666','2',2)])]
-                self.dealer.hand = Hand([(u'\u2660','9',9), (u'\u2660','A',11)])
+                #----------------- can be used for debug ----------------------------
+                # self.player.hands = [Hand([(u'\u2660','2',2), (u'\u2666','2',2)])]
+                # self.dealer.hand = Hand([(u'\u2660','9',9), (ula'\u2660','A',11)])
                 
                 # If dealer has two Aces, then one of them will be valued as 1
                 if self.dealer.hand.get_value() == 22:
