@@ -11,10 +11,13 @@
     <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet">
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/moment.js"></script>
+    <script src="/static/js/moment-with-locales.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
+    <script>
+      moment.locale('{{g.locale}}');  // Set the default/global locale
+    </script>
     <div class="container">
        <div class="navbar">
          <div class="navbar-inner">
@@ -25,7 +28,7 @@
            </a>
            <a class="brand" href="/">microblog</a>
              <ul class="nav">
-               <li><a href="{{ url_for('index') }}">Home</a></li>
+               <li><a href="{{ url_for('index') }}">{{_('Home')}}</a></li>
                {% if g.user.is_authenticated %}
                <li><a href="{{ url_for('user', nickname = g.user.nickname) }}">Your Profile</a></li>
                <li><a href="{{ url_for('logout') }}">Logout</a></li>
