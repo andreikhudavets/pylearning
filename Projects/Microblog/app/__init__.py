@@ -37,4 +37,8 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.info('microblog startup')
 
+from flask.ext.mail import Mail
+mail = Mail(app)
+
 from app import views, models
+
