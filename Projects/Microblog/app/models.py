@@ -98,7 +98,7 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     language = db.Column(db.String(5))
 
-    def __repr__(self):
+    def __repr__(self):   # pragma: no cover
         return '<Post %r>' % (self.body)
 
 if enable_search:
