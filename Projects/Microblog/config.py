@@ -40,3 +40,6 @@ LANGUAGES = {
     'en': 'English',
     'ru': 'Русский'
 }
+
+MS_TRANSLATOR_CLIENT_ID = 'a123987456' # enter your MS translator app id here
+MS_TRANSLATOR_CLIENT_SECRET = '12345678901234567890' # enter your MS translator app secret here

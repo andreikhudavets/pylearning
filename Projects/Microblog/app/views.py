@@ -10,11 +10,14 @@ from .emails import follower_notification
 from app import babel
 from config import LANGUAGES
 from flask.ext.babel import gettext
+from guess_language import guessLanguage
+from flask import jsonify
+from .translate import microsoft_translate
 
 @babel.localeselector
 def get_locale():
-    #return request.accept_languages.best_match(LANGUAGES.keys())
-    return 'ru'
+    return request.accept_languages.best_match(LANGUAGES.keys())
+    #return 'ru'
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
@@ -23,7 +26,13 @@ def get_locale():
 def index(page=1):
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, timestamp=datetime.utcnow(), author=g.user)
+        language = guessLanguage(form.post.data)
+        if language == 'UNKNOWN' or len(language) > 5:
+            language = ''
+        post = Post(body=form.post.data, 
+                    timestamp=datetime.utcnow(), 
+                    author=g.user, 
+                    language=language)
         db.session.add(post)
         db.session.commit()
         flash('Your post is now live!')
@@ -174,6 +183,15 @@ def search_results(query):
     return render_template('search_results.html',
                            query=query,
                            results=results)
+
+@app.route('/translate', methods=['POST'])
+@login_required
+def translate():
+    return jsonify({ 
+        'text': microsoft_translate(
+            request.form['text'], 
+            request.form['sourceLang'], 
+            request.form['destLang']) })
 
 @app.errorhandler(404)
 def not_found_error(error):

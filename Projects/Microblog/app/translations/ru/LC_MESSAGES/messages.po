@@ -7,17 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-02-18 06:09+0300\n"
-"PO-Revision-Date: 2016-02-18 06:00+0300\n"
+"POT-Creation-Date: 2016-02-18 06:39+0300\n"
+"PO-Revision-Date: 2016-02-18 06:39+0300\n"
 "Last-Translator: \n"
 "Language: ru\n"
 "Language-Team: ru <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"X-Generator: Poedit 1.8.7\n"
 
 #: app/__init__.py:19
 msgid "Please log in to access this page."
@@ -35,7 +36,15 @@ msgstr ""
 msgid "This nickname is already in use. Please choose another one."
 msgstr "Это имя пользователя уже используется. Пожалуйста, выберите другое."
 
-#: app/views.py:73
+#: app/translate.py:15
+msgid "Error: translation service not configured."
+msgstr "Ошибка: служба перевода не настроена."
+
+#: app/translate.py:38
+msgid "Error: Unexpected error."
+msgstr "Ошибка: Непредвиденная ошибка."
+
+#: app/views.py:80
 msgid "Invalid login. Please try again."
 msgstr "Неверный логин. Пожалуйста, попробуйте еще раз."
 
@@ -48,3 +57,6 @@ msgstr "Главная"
 msgid "%(nickname)s said %(when)s:"
 msgstr "%(nickname)s сказал %(when)s:"
 
+#: app/templates/post.html:10
+msgid "Translate"
+msgstr "Перевод"
