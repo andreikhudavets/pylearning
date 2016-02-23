@@ -1,0 +1,22 @@
+User roles:
+- Unregistered user
+- Registered user
+
+Unregistered user can:
+- Select topic
+- Take a quiz
+- Share link with result
+- Login/Register with Google/Facebook
+
+Registered user can
+- Add question to the topic
+- Delete own questions from the topic
+- Edit own questions
+- Edit profile
+
+Models:
+- Topics
+- Questions
+- Options
+- Result
+- Users
