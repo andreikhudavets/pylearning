@@ -12,7 +12,6 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     questions = db.relationship("Question", back_populates="topic")
-    results = db.relationship("Result", back_populates="topic")
     
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -21,15 +20,26 @@ class Question(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     author = db.relationship("User", back_populates="questions")
     topic = db.relationship("Topic", back_populates="questions")
+    answers = db.relationship("Answer", back_populates="question")
     
-class Variant(db.Model):
+result_answers = db.Table('result_answers', db.Model.metadata,
+    db.Column('attempt_id', db.Integer, db.ForeignKey('attempt.id')),
+    db.Column('answer_id', db.Integer, db.ForeignKey('answer.id'))
+)
+
+class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(255))
     is_correct = db.Column(db.Boolean())
-    
-class Result(db.Model):
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
+    question = db.relationship("Question", back_populates="answers")
+    attempts = db.relationship("Attempt", secondary=result_answers, back_populates='answers')
+
+class Attempt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    topic = db.relationship("Topic", back_populates="results")
-    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+    score = db.Column(db.Float(precision=2))
     student_name = db.Column(db.String(255))
+    student_email = db.Column(db.String(255))
     timestamp = db.Column(db.DateTime)
+    answers = db.relationship("Answer", secondary=result_answers, back_populates='attempts')
+    
