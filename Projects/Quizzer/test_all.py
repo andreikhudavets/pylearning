@@ -12,7 +12,6 @@ if coverage_enabled:
     cov.start()
 
 from testcases.test_models import ModelsTestCase
-from testcases.test_views import ViewsTastCase
 
         
 if __name__ == '__main__':

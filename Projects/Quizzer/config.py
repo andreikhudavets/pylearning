@@ -9,3 +9,13 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 CSRF_ENABLED = True
 SECRET_KEY = '437HJKlkjH^&*967'
+
+GOOGLE_LOGIN_CLIENT_ID = "176466295225-ree0l8grtmnri3452kr5arj0rleqk78t.apps.googleusercontent.com"
+GOOGLE_LOGIN_CLIENT_SECRET = "guidLbZ-4rd-noAoMNJkFVWJ"
+
+OAUTH_CREDENTIALS={
+        'google': {
+            'id': GOOGLE_LOGIN_CLIENT_ID,
+            'secret': GOOGLE_LOGIN_CLIENT_SECRET
+        }
+}
