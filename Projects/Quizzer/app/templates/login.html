@@ -1,6 +1,10 @@
-<!-- extend base layout -->
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Login here.</h1>
+
+    <div id="sign-in">
+        <h1>Sign In</h1>
+        <p>
+        <a href={{ url_for('oauth_authorize', provider='google') }}><img src="{{ url_for('static', filename='img/signin-with-google.jpg') }}" /></a>
+    </div>
 {% endblock %}

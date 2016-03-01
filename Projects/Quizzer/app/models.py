@@ -7,6 +7,7 @@ class User(db.Model):
     nickname = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     questions = db.relationship("Question", back_populates="author")
+    
     @property
     def is_authenticated(self):
         return True
