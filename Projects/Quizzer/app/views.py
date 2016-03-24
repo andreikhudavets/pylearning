@@ -1,8 +1,9 @@
 from flask import render_template,g
 from app import app, db, lm
-from flask.ext.login import login_user, logout_user, current_user, login_required, redirect, url_for
+from flask.ext.login import login_user, logout_user, current_user, login_required, redirect, url_for, flash, request
 from auth import OAuthSignIn
 from models import User, Topic, Question, Answer, Attempt
+from forms import NewTopicForm
 
 @app.before_request
 def before_request():
@@ -19,9 +20,59 @@ def index():
                            title='Home')
 
 
-@app.route('/questions', methods=['GET', 'POST'])
-def questions():
-    return ("questions")
+@app.route('/topics', methods=['GET', 'POST'])
+@app.route('/topics/<operation>/<int:topic_id>', methods=['GET', 'POST'])
+def topics(operation=None, topic_id=-1):
+    form = NewTopicForm(request.form)
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        topic = Topic(name=form.topic.data)
+        db.session.add(topic)
+        db.session.commit()
+        flash('New topic is created')
+        return redirect(url_for('topics'))
+    if operation == 'delete':
+        try:
+            topic = Topic().query.get(topic_id)
+            db.session.delete(topic)
+            db.session.commit()
+        except:
+            flash ("Failed to delete topic {}.".format(topic_id))
+        return redirect(url_for('topics'))
+    if operation == 'update':
+        try:
+            topic = Topic().query.get(topic_id)
+            topic.name = request.values.get("value")
+            db.session.add(topic)
+            db.session.commit()
+        except:
+            return 'Error renaming topic.', 400
+        else:
+            return 'Topic updted successfuly.', 200
+
+    topics = Topic().query.all()  
+    return render_template('topics.html',
+                           title='Topics',
+                           form = form,
+                           topics = topics)
+
+@app.route('/questions/<topic_id>', methods=['GET', 'POST'])
+def questions(topic_id = None):
+    if topic_id == None:
+        return "Topic id not found", 404
+    topic = Topic().query.get(topic_id)
+    
+    return render_template('questions.html',
+                           title='Questions for topic {}'.format(topic.name),
+                           questions = topic.questions)   
+    
+@app.route('/question', methods=['GET', 'POST'])
+def question():
+    
+    return render_template('question.html',
+                           title='Question')   
+    
+        
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():

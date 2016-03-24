@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <div id="sign-in">
+    <div class=row id="sign-in">
         <h1>Sign In</h1>
         <p>
         <a href={{ url_for('oauth_authorize', provider='google') }}><img src="{{ url_for('static', filename='img/signin-with-google.jpg') }}" /></a>

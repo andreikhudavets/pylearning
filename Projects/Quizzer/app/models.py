@@ -1,4 +1,6 @@
 from app import db, app
+from sqlalchemy.orm import validates
+
 ROLE_GUEST = 0
 ROLE_USER = 1
 
@@ -30,6 +32,11 @@ class Topic(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
     questions = db.relationship("Question", back_populates="topic")
+    
+    @validates("name")
+    def validate_name(self, key, name):
+        assert len(name) > 0 
+        return name
     
 class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)

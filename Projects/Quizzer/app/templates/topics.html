@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+            <form class="form-inline" action="" method="post" name="post">
+                {{form.hidden_tag()}}
+                <div class="form-group {% if form.errors.post %}error{% endif %}">
+                    <label for="topic">New topic name:</label>
+                        {{ form.topic(size = 30, maxlength = 255) }}
+                    <button type="submit" class="btn btn-default">New Topic</button>
+                </div>
+                {% for error in form.topic.errors %}
+                    <span class="help-inline">{{error}}</span>
+                {% endfor %}
+            </form>
+        <table class="table table-striped">
+            <tr>
+                <th>Id</th>
+                <th>Topic</th>
+                <th>Questions</th>
+                <th>Actions</th>
+            </tr>
+            {% for topic in topics %}
+            <tr>
+                <td>{{ topic.id }}</td>
+                <td><a href="#" id="topicname{{topic.id}}" data-type="text" data-pk={{topic.id}} data-url={{ url_for('topics', operation='update', topic_id=topic.id)}} data-title="Enter topic name">{{topic.name}}</a></td>
+                <td><a href={{ url_for('questions', topic_id=topic.id) }}>{{ topic.questions|count }}</a></td>
+                <td><a href={{ url_for('topics', operation='delete', topic_id=topic.id) }}>delete</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+{% endblock %}
