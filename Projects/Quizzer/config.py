@@ -11,7 +11,7 @@ CSRF_ENABLED = True
 SECRET_KEY = '437HJKlkjH^&*967'
 
 GOOGLE_LOGIN_CLIENT_ID = "176466295225-ree0l8grtmnri3452kr5arj0rleqk78t.apps.googleusercontent.com"
-GOOGLE_LOGIN_CLIENT_SECRET = "guidLbZ-4rd-noAoMNJkFVWJ"
+GOOGLE_LOGIN_CLIENT_SECRET = "2uoyVX-NnEKbqISbTZJQQyah"
 
 OAUTH_CREDENTIALS={
         'google': {
