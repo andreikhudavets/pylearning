@@ -3,7 +3,7 @@ from app import app, db, lm
 from flask.ext.login import login_user, logout_user, current_user, login_required, redirect, url_for, flash, request
 from auth import OAuthSignIn
 from models import User, Topic, Question, Answer, Attempt
-from forms import NewTopicForm
+from forms import NewTopicForm, NewQuestionForm
 
 @app.before_request
 def before_request():
@@ -64,13 +64,21 @@ def questions(topic_id = None):
     
     return render_template('questions.html',
                            title='Questions for topic {}'.format(topic.name),
-                           questions = topic.questions)   
+                           questions = topic.questions)
+
+
+@app.route('/question', defaults={'id':None, 'action':None}, methods=['GET', 'POST'])
+@app.route('/question/<action>', defaults={'id':None}, methods=['GET', 'POST'])
+@app.route('/question/<action>/<int:id>', methods=['GET', 'POST'])
+def question(action="new", id = None):
+    form = NewQuestionForm(request.form)
     
-@app.route('/question', methods=['GET', 'POST'])
-def question():
+    answerzip = zip(form.answers, form.validities)
     
     return render_template('question.html',
-                           title='Question')   
+                           title='Question',
+                           form = form,
+                           answerzip = answerzip)   
     
         
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-        <div class="margin-bottom-30"><a class="btn btn-default" href="#" role="button">Add a new question</a></div>
+        <div class="margin-bottom-30"><a class="btn btn-default" role="button" href={{ url_for('question', action='new')}}>Add a new question</a></div>
 
         <table class="table table-striped">
             <tr>
@@ -15,7 +15,7 @@
                 <td>{{ question.id }}</td>
                 <td>{{ question.text }}</td>
                 <td>{{ question.author }}</td>
-                <td><a href={{ url_for('question', operation='delete', question_id=question.id)}}>delete</a></td>
+                <td><a href={{ url_for('question', action='delete', id=question.id)}}>delete</a></td>
             </tr>
             {% endfor %}
         </table>
