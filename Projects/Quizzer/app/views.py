@@ -68,8 +68,8 @@ def questions(topic_id = None):
 
 
 @app.route('/question', defaults={'id':None, 'action':None}, methods=['GET', 'POST'])
-@app.route('/question/<action>', defaults={'id':None}, methods=['GET', 'POST'])
-@app.route('/question/<action>/<int:id>', methods=['GET', 'POST'])
+#@app.route('/question/<action>', defaults={'id':None}, methods=['GET', 'POST'])
+#@app.route('/question/<action>/<int:id>', methods=['GET', 'POST'])
 def question(action="new", id = None):
     form = NewQuestionForm(request.form)
     
@@ -78,7 +78,24 @@ def question(action="new", id = None):
     return render_template('question.html',
                            title='Question',
                            form = form,
-                           answerzip = answerzip)   
+                           answerzip = answerzip)
+
+@app.route('/question/new/<int:topic_id>', methods=['GET', 'POST'])
+def new_question(topic_id=-1):
+    form = NewQuestionForm(request.form)
+    answerzip = zip(form.answers, form.validities)
+    if request.method == 'POST' and form.validate_on_submit():
+        answers = []
+        for q in form.answers:
+            app.logger.info(q)
+
+        #question = Question(texty, author, topic, answers)
+        
+    return render_template('question.html',
+                           title='New Question',
+                           form = form,
+                           answerzip = answerzip)
+    
     
         
 

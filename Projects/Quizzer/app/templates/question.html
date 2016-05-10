@@ -1,7 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-
+<script language="javascript">
+    function add_node() {
+        //alert("Hello " + node_id);
+        var siblings = document.getElementsByClassName("my-answer").length;
+        var elmnt = document.getElementById("answergroup-"+siblings.toString())
+        var cln = elmnt.cloneNode(true);        
+        cln.querySelector(".my-delnode").style.display = "inline-block"
+        cln.setAttribute("id", "answergroup-" + (siblings+1).toString());
+        elmnt.parentNode.insertBefore(cln, elmnt.nextSibling);
+        //document.body.appendChild(cln);
+    }
+    function delete_node(node) {
+        node.remove();
+        
+        // Re-calculating ids
+        var siblings = document.getElementsByClassName("my-answer");
+        for (index = 0; index < siblings.length; ++index) {
+            siblings[index].setAttribute("id","answergroup-" + (index+1).toString());
+        }
+        //document.getElementById("answergroup-"+node_id.toString()).remove()
+    }
+</script>
             <form class="form" action="" method="post" name="post">
                 {{form.hidden_tag()}}
                 <div class="form-group {% if form.errors.post %}error{% endif %}">
@@ -10,14 +31,17 @@
                         {{ form.question(size = 30, maxlength = 255) }}
                     </div>
 
-                    <div class="form-group" id="answergroup-0">
-                        {% for answer, is_valid in answerzip %}
-                            <label for="answers">Answer #:</label>
-                                    {{answer}}
-                            <label for="validities">True?:</label>
-                                    {{is_valid}}
-                            <a class="btn btn-default btn-sm" href="#" role="button"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>                        
-                        {% endfor %}
+                    {% for answer, is_valid in answerzip %}
+                        <div class="form-group my-answer" id="answergroup-{{loop.index}}">
+                                <label for="answers">Answer #:</label>
+                                        {{answer}}
+                                <label for="validities">True?:</label>
+                                        {{is_valid}}
+                                <a style="display:none;" class="btn btn-default btn-sm my-delnode" href="#" onclick="delete_node(this.parentNode);" role="button"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>                        
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        <a class="btn btn-default btn-sm my-addnode" href="#" onclick="add_node()" role="button"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>                        
                     </div>
 
                     <div class="form-group">
