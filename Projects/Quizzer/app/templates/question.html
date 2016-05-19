@@ -5,10 +5,18 @@
     function add_node() {
         //alert("Hello " + node_id);
         var siblings = document.getElementsByClassName("my-answer").length;
-        var elmnt = document.getElementById("answergroup-"+siblings.toString())
+        var index_str = (siblings-1).toString()
+        var elmnt = document.getElementById("answergroup-"+index_str)
         var cln = elmnt.cloneNode(true);        
         cln.querySelector(".my-delnode").style.display = "inline-block"
-        cln.setAttribute("id", "answergroup-" + (siblings+1).toString());
+        cln.setAttribute("id", "answergroup-" + siblings.toString());
+        cln.querySelector("#answers-"+index_str).value = ""
+        cln.querySelector("#validities-"+index_str).value  = ""
+        cln.querySelector("#validities-"+index_str).checked  = false
+        cln.querySelector("#answers-"+index_str).setAttribute("name", "answers-"+siblings.toString())
+        cln.querySelector("#validities-"+index_str).setAttribute("name", "validities-"+siblings.toString())
+        cln.querySelector("#answers-"+index_str).setAttribute("id", "answers-"+siblings.toString())
+        cln.querySelector("#validities-"+index_str).setAttribute("id", "validities-"+siblings.toString())
         elmnt.parentNode.insertBefore(cln, elmnt.nextSibling);
         //document.body.appendChild(cln);
     }
@@ -18,7 +26,11 @@
         // Re-calculating ids
         var siblings = document.getElementsByClassName("my-answer");
         for (index = 0; index < siblings.length; ++index) {
-            siblings[index].setAttribute("id","answergroup-" + (index+1).toString());
+            siblings[index].setAttribute("id","answergroup-" + index.toString());
+            siblings[index].querySelector("[id^=answers]").setAttribute("id","answers-" + index.toString());
+            siblings[index].querySelector("[id^=answers]").setAttribute("name","answers-" + index.toString());
+            siblings[index].querySelector("[id^=validities]").setAttribute("id","validities-" + index.toString());
+            siblings[index].querySelector("[id^=validities]").setAttribute("name","validities-" + index.toString());
         }
         //document.getElementById("answergroup-"+node_id.toString()).remove()
     }
@@ -32,7 +44,7 @@
                     </div>
 
                     {% for answer, is_valid in answerzip %}
-                        <div class="form-group my-answer" id="answergroup-{{loop.index}}">
+                        <div class="form-group my-answer" id="answergroup-{{loop.index-1}}">
                                 <label for="answers">Answer #:</label>
                                         {{answer}}
                                 <label for="validities">True?:</label>

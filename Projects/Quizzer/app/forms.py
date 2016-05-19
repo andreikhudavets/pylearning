@@ -8,5 +8,5 @@ class NewTopicForm(Form):
 
 class NewQuestionForm(Form):
     question = StringField('Text', validators=[DataRequired(), Length(min=0, max=255)])
-    answers = FieldList(StringField('Answer', validators=[DataRequired(), Length(min=0, max=255)]), min_entries=1, max_entries=5)
-    validities = FieldList(BooleanField('IsValidAnswer', validators=[DataRequired(), Length(min=0, max=255)]), min_entries=1, max_entries=5)
+    answers = FieldList(StringField('Answer', validators=[Length(min=0, max=255)]), min_entries=1)
+    validities = FieldList(BooleanField('IsValidAnswer'), min_entries=1)

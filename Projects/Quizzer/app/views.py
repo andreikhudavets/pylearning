@@ -85,9 +85,10 @@ def new_question(topic_id=-1):
     form = NewQuestionForm(request.form)
     answerzip = zip(form.answers, form.validities)
     if request.method == 'POST' and form.validate_on_submit():
+        app.logger.info("validation passed")
         answers = []
         for q in form.answers:
-            app.logger.info(q)
+            app.logger.info(q.data)
 
         #question = Question(texty, author, topic, answers)
         
