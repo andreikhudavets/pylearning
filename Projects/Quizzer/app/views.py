@@ -3,7 +3,7 @@ from app import app, db, lm
 from flask.ext.login import login_user, logout_user, current_user, login_required, redirect, url_for, flash, request
 from auth import OAuthSignIn
 from models import User, Topic, Question, Answer, Attempt
-from forms import NewTopicForm, NewQuestionForm
+from forms import NewTopicForm, NewQuestionForm, AnswerForm
 
 @app.before_request
 def before_request():
@@ -56,49 +56,81 @@ def topics(operation=None, topic_id=-1):
                            form = form,
                            topics = topics)
 
-@app.route('/questions/<topic_id>', methods=['GET', 'POST'])
-def questions(topic_id = None):
+@app.route('/topic/questions/<topic_id>', methods=['GET', 'POST'])
+def topic_questions(topic_id = None):
     if topic_id == None:
         return "Topic id not found", 404
     topic = Topic().query.get(topic_id)
     
-    return render_template('questions.html',
+    return render_template('topic_questions.html',
                            title='Questions for topic {}'.format(topic.name),
+                           topic_id = topic_id,
                            questions = topic.questions)
 
-
-@app.route('/question', defaults={'id':None, 'action':None}, methods=['GET', 'POST'])
-#@app.route('/question/<action>', defaults={'id':None}, methods=['GET', 'POST'])
-#@app.route('/question/<action>/<int:id>', methods=['GET', 'POST'])
-def question(action="new", id = None):
-    form = NewQuestionForm(request.form)
-    
-    answerzip = zip(form.answers, form.validities)
-    
-    return render_template('question.html',
-                           title='Question',
-                           form = form,
-                           answerzip = answerzip)
 
 @app.route('/question/new/<int:topic_id>', methods=['GET', 'POST'])
 def new_question(topic_id=-1):
     form = NewQuestionForm(request.form)
-    answerzip = zip(form.answers, form.validities)
+    #answerzip = zip(form.answers, form.validities)
+    answers = []
     if request.method == 'POST' and form.validate_on_submit():
-        app.logger.info("validation passed")
-        answers = []
-        for q in form.answers:
-            app.logger.info(q.data)
-
+        for answer in form.answers:
+            answers.append(Answer(text=answer.answer.data, is_correct=answer.is_correct.data))
+            
+        question = Question(text=form.question.data,author=g.user,topic=Topic.query.get(topic_id), answers=answers)
+        db.session.add(question)
+        db.session.commit()
+        
+        return redirect(url_for('topic_questions', topic_id=topic_id))
         #question = Question(texty, author, topic, answers)
         
     return render_template('question.html',
                            title='New Question',
-                           form = form,
-                           answerzip = answerzip)
+                           form = form)
     
-    
+@app.route('/question/delete/<int:question_id>', methods=['GET'])
+def delete_question(question_id=-1):
+    question = Question.query.get(question_id)
+    topic_id = question.topic.id
+
+    db.session.delete(question)
+    db.session.commit()
         
+    return redirect(url_for('topic_questions', topic_id=topic_id))
+
+@app.route('/question/edit/<int:question_id>', methods=['GET', 'POST'])
+def edit_question(question_id=-1):
+    form = NewQuestionForm(request.form)
+    #answerzip = zip(form.answers, form.validities)
+    answers = []
+    if request.method == 'POST' and form.validate_on_submit():
+        for answer in form.answers:
+            answers.append(Answer(text=answer.answer.data, is_correct=answer.is_correct.data))
+        
+        question = Question.query.get(question_id)
+        question.text = form.question.data
+        Answer.query.filter(Answer.question_id==question.id).delete()
+        question.answers = answers
+        db.session.add(question)
+        db.session.commit()
+        
+        return redirect(url_for('topic_questions', topic_id = question.topic.id))
+
+    question = Question.query.get(question_id)
+    for i in range(2):
+        form.answers.pop_entry()
+
+    form.question.data = question.text
+    for answer in question.answers:
+        answer_form = AnswerForm()
+        answer_form.answer = answer.text
+        answer_form.is_correct = answer.is_correct
+        form.answers.append_entry(answer_form)
+        
+    return render_template('question.html',
+                           title='New Question',
+                           form = form)
+
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():

@@ -25,7 +25,7 @@
             <tr>
                 <td>{{ topic.id }}</td>
                 <td><a href="#" id="topicname{{topic.id}}" data-type="text" data-pk={{topic.id}} data-url={{ url_for('topics', operation='update', topic_id=topic.id)}} data-title="Enter topic name">{{topic.name}}</a></td>
-                <td><a href={{ url_for('new_question', topic_id=topic.id) }}>{{ topic.questions|count }}</a></td>
+                <td><a href={{ url_for('topic_questions', topic_id=topic.id) }}>{{ topic.questions|count }}</a></td>
                 <td><a href={{ url_for('topics', operation='delete', topic_id=topic.id) }}>delete</a></td>
             </tr>
             {% endfor %}

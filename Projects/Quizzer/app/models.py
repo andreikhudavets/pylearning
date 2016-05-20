@@ -44,8 +44,8 @@ class Question(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     author = db.relationship("User", back_populates="questions")
-    topic = db.relationship("Topic", back_populates="questions")
-    answers = db.relationship("Answer", back_populates="question")
+    topic = db.relationship("Topic", back_populates="questions", lazy='subquery')
+    answers = db.relationship("Answer", back_populates="question", cascade="all, delete-orphan")
     
 result_answers = db.Table('result_answers', db.Model.metadata,
     db.Column('attempt_id', db.Integer, db.ForeignKey('attempt.id')),
@@ -57,7 +57,7 @@ class Answer(db.Model):
     text = db.Column(db.String(255))
     is_correct = db.Column(db.Boolean())
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
-    question = db.relationship("Question", back_populates="answers")
+    question = db.relationship("Question", back_populates="answers", single_parent=True, cascade="all, delete-orphan")
     attempts = db.relationship("Attempt", secondary=result_answers, back_populates='answers')
 
 class Attempt(db.Model):

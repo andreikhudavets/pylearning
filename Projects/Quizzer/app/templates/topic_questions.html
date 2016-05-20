@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <div class="margin-bottom-30"><a class="btn btn-default" role="button" href={{ url_for('new_question', topic_id=topic_id)}}>Add a new question</a></div>
+
+        <table class="table table-striped">
+            <tr>
+                <th>Id</th>
+                <th>Question</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+            {% for question in questions %}
+            <tr>
+                <td>{{ question.id }}</td>
+                <td>{{ question.text }}</td>
+                <td>{{ question.author.nickname }}</td>
+                <td>
+                    <a href={{url_for('delete_question', question_id=question.id)}} onclick="return confirm('Are you sure to delete question {{ question.id }}?')">delete</a>
+                    <a href={{url_for('edit_question', question_id=question.id)}}>edit</a>               
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+{% endblock %}

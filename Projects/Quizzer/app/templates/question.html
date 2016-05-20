@@ -8,29 +8,43 @@
         var index_str = (siblings-1).toString()
         var elmnt = document.getElementById("answergroup-"+index_str)
         var cln = elmnt.cloneNode(true);        
-        cln.querySelector(".my-delnode").style.display = "inline-block"
         cln.setAttribute("id", "answergroup-" + siblings.toString());
-        cln.querySelector("#answers-"+index_str).value = ""
-        cln.querySelector("#validities-"+index_str).value  = ""
-        cln.querySelector("#validities-"+index_str).checked  = false
-        cln.querySelector("#answers-"+index_str).setAttribute("name", "answers-"+siblings.toString())
-        cln.querySelector("#validities-"+index_str).setAttribute("name", "validities-"+siblings.toString())
-        cln.querySelector("#answers-"+index_str).setAttribute("id", "answers-"+siblings.toString())
-        cln.querySelector("#validities-"+index_str).setAttribute("id", "validities-"+siblings.toString())
+        cln.querySelector("#answers-"+index_str+"-answer").value = ""
+        cln.querySelector("#answers-"+index_str+"-is_correct").checked  = false
+        cln.querySelector("#answers-"+index_str+"-answer").setAttribute("name", "answers-"+siblings.toString()+"-answer")
+        cln.querySelector("#answers-"+index_str+"-answer").setAttribute("id", "answers-"+siblings.toString()+"-answer")
+        
+        cln.querySelector("#answers-"+index_str+"-is_correct").setAttribute("name", "answers-"+siblings.toString()+"-is_correct")
+        cln.querySelector("#answers-"+index_str+"-is_correct").setAttribute("id", "answers-"+siblings.toString()+"-is_correct")
+
+        cln.querySelector("#answers-"+index_str+"-csrf_token").setAttribute("name", "answers-"+siblings.toString()+"-csrf_token")
+        cln.querySelector("#answers-"+index_str+"-csrf_token").setAttribute("id", "answers-"+siblings.toString()+"-csrf_token")
+        
+        /*
+        cln.querySelector("#validities-"+index_str).value  = "y"
+
+        */
         elmnt.parentNode.insertBefore(cln, elmnt.nextSibling);
         //document.body.appendChild(cln);
     }
     function delete_node(node) {
+        var siblings = document.getElementsByClassName("my-answer");
+        // Re-calculating ids
+        if (siblings.length<=2) {
+            alert ("You must have at least two options.")
+            return
+        }
+
         node.remove();
         
-        // Re-calculating ids
-        var siblings = document.getElementsByClassName("my-answer");
         for (index = 0; index < siblings.length; ++index) {
             siblings[index].setAttribute("id","answergroup-" + index.toString());
-            siblings[index].querySelector("[id^=answers]").setAttribute("id","answers-" + index.toString());
-            siblings[index].querySelector("[id^=answers]").setAttribute("name","answers-" + index.toString());
-            siblings[index].querySelector("[id^=validities]").setAttribute("id","validities-" + index.toString());
-            siblings[index].querySelector("[id^=validities]").setAttribute("name","validities-" + index.toString());
+            siblings[index].querySelector("[id*=-answer]").setAttribute("id","answers-"+index.toString()+"-answer");
+            siblings[index].querySelector("[id*=-answer]").setAttribute("name","answers-"+index.toString()+"-answer");
+            siblings[index].querySelector("[id*=is_correct]").setAttribute("id","answers-"+index.toString()+"-is_correct");
+            siblings[index].querySelector("[id*=is_correct]").setAttribute("name","answers-"+index.toString()+"-is_correct");
+            siblings[index].querySelector("[id*=csrf_token]").setAttribute("id","answers-"+index.toString()+"-csrf_token");
+            siblings[index].querySelector("[id*=csrf_token]").setAttribute("name","answers-"+index.toString()+"-csrf_token");
         }
         //document.getElementById("answergroup-"+node_id.toString()).remove()
     }
@@ -43,13 +57,14 @@
                         {{ form.question(size = 30, maxlength = 255) }}
                     </div>
 
-                    {% for answer, is_valid in answerzip %}
+                    {% for answer in form.answers %}
                         <div class="form-group my-answer" id="answergroup-{{loop.index-1}}">
-                                <label for="answers">Answer #:</label>
-                                        {{answer}}
-                                <label for="validities">True?:</label>
-                                        {{is_valid}}
-                                <a style="display:none;" class="btn btn-default btn-sm my-delnode" href="#" onclick="delete_node(this.parentNode);" role="button"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>                        
+                                {{answer.hidden_tag()}}
+                                <label for="answers">Option:</label>
+                                        {{answer.answer}}
+                                <label for="is_correct">True?</label>
+                                        {{answer.is_correct}}
+                                <a class="btn btn-default btn-sm my-delnode" href="#" onclick="delete_node(this.parentNode);" role="button"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></a>                        
                         </div>
                     {% endfor %}
                     <div class="form-group">
@@ -60,7 +75,7 @@
                         <button type="submit" class="btn btn-default">Save</button>
                     </div>
                 </div>
-                {% for error in form.errors %}
+                {% for error in form.answers.errors %}
                     <span class="help-inline">{{error}}</span>
                 {% endfor %}
             </form>
